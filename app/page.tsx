@@ -524,87 +524,90 @@ export default function ScheduleViewer() {
     <div className="min-h-screen bg-background text-foreground p-6">
       <div className="max-w-7xl mx-auto">
         <header className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-4">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <h1 className="text-3xl font-bold text-foreground">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
                   {currentSchedule?.name || "My Schedule"}
                 </h1>
                 <span className="text-sm text-muted-foreground">
                   • Welcome, {username}
                 </span>
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 {currentSchedule?.description ||
                   "Click on any activity to view upcoming tests and important dates"}
               </p>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={logout}
-                className="flex items-center gap-2 bg-transparent"
-              >
-                <LogOut className="w-4 h-4" />
-                Sign Out
-              </Button>
-              <Select
-                value={currentScheduleId}
-                onValueChange={setCurrentScheduleId}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Select schedule" />
-                </SelectTrigger>
-                <SelectContent>
-                  {schedules.map((schedule) => (
-                    <SelectItem key={schedule.id} value={schedule.id}>
-                      {schedule.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+            <div className="w-full lg:w-auto grid grid-cols-2 sm:grid-cols-3 md:flex gap-2">
+              <div className="col-span-2 sm:col-span-3 md:col-auto flex gap-2 w-full md:w-auto">
+                <Button
+                  variant="outline"
+                  onClick={logout}
+                  className="flex-1 md:flex-none items-center gap-2 bg-transparent"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Sign Out</span>
+                </Button>
+                <Select
+                  value={currentScheduleId}
+                  onValueChange={setCurrentScheduleId}
+                >
+                  <SelectTrigger className="flex-1 md:w-48">
+                    <SelectValue placeholder="Select schedule" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {schedules.map((schedule) => (
+                      <SelectItem key={schedule.id} value={schedule.id}>
+                        {schedule.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
               <Button
                 variant="outline"
                 onClick={() =>
                   setShowScheduleManagement(!showScheduleManagement)
                 }
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2"
               >
                 <FolderPlus className="w-4 h-4" />
-                Schedules
+                <span className="hidden sm:inline">Schedules</span>
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setShowManagement(!showManagement)}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2"
               >
                 <Settings className="w-4 h-4" />
-                Manage
+                <span className="hidden sm:inline">Manage</span>
               </Button>
               <Button
                 variant={viewMode === "weekly" ? "default" : "outline"}
                 onClick={() => setViewMode("weekly")}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2"
               >
                 <CalendarDays className="w-4 h-4" />
-                Weekly
+                <span className="hidden sm:inline">Weekly</span>
               </Button>
               <Button
                 variant={viewMode === "daily" ? "default" : "outline"}
                 onClick={() => setViewMode("daily")}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2"
               >
                 <List className="w-4 h-4" />
-                Daily
+                <span className="hidden sm:inline">Daily</span>
               </Button>
               <Button
                 variant={viewMode === "schedule" ? "default" : "outline"}
                 onClick={() => setViewMode("schedule")}
-                className="flex items-center gap-2"
+                className="flex items-center justify-center gap-2"
               >
                 <Grid3X3 className="w-4 h-4" />
-                Schedule
+                <span className="hidden sm:inline">Schedule</span>
               </Button>
             </div>
           </div>
@@ -767,152 +770,127 @@ export default function ScheduleViewer() {
                   </div>
 
                   {scheduleData.map((daySchedule) => {
-                    const activitiesInSlot = daySchedule.activities.filter(
-                      (activity) => {
-                        const { startHour, endHour } = parseTimeToHour(
-                          activity.time
-                        );
-                        return (
-                          startHour <= timeSlot.hour && timeSlot.hour < endHour
-                        );
-                      }
-                    );
+                    const activitiesStartingInSlot =
+                      daySchedule.activities.filter((activity) => {
+                        const { startHour } = parseTimeToHour(activity.time);
+                        return startHour === timeSlot.hour;
+                      });
 
                     return (
                       <div
                         key={`${daySchedule.day}-${timeSlot.hour}`}
-                        className="relative p-1 min-h-[60px] border-b border-border"
+                        className="relative p-1 min-h-[100px] border-b border-border"
                       >
-                        {activitiesInSlot.map((activity) => {
+                        {activitiesStartingInSlot.map((activity) => {
                           const {
                             startHour,
                             endHour,
                             startMinutes,
                             endMinutes,
                           } = parseTimeToHour(activity.time);
-
-                          // Calculate position within the hour slot
-                          const isFirstSlot = startHour === timeSlot.hour;
-                          const isLastSlot = endHour - 1 === timeSlot.hour;
-
-                          // Calculate top offset for start time
-                          const topOffset = isFirstSlot
-                            ? (startMinutes / 60) * 100
-                            : 0;
-
-                          // Calculate height - if activity spans multiple slots, this slot shows its portion
-                          let height = 100;
-                          if (isFirstSlot && isLastSlot) {
-                            // Activity starts and ends in this slot
-                            const durationMinutes =
-                              (endHour - startHour) * 60 +
-                              (endMinutes - startMinutes);
-                            height = (durationMinutes / 60) * 100;
-                          } else if (isFirstSlot) {
-                            // Activity starts in this slot but continues
-                            height = ((60 - startMinutes) / 60) * 100;
-                          } else if (isLastSlot) {
-                            // Activity ends in this slot
-                            height = (endMinutes / 60) * 100;
-                          }
+                          const totalDurationHours = endHour - startHour;
+                          const totalDurationMinutes =
+                            (endHour - startHour) * 60 +
+                            (endMinutes - startMinutes);
+                          const topOffset = (startMinutes / 60) * 100;
+                          const heightPercentage =
+                            (totalDurationMinutes / 60) * 100;
 
                           return (
                             <Dialog key={activity.id}>
                               <DialogTrigger asChild>
                                 <Card
-                                  className="absolute left-1 right-1 cursor-pointer hover:bg-accent/20 transition-colors duration-200 border-primary/20 bg-primary/5 h-full"
+                                  className="absolute left-1 right-1 cursor-pointer hover:bg-accent/20 transition-colors duration-200 border-primary/20 bg-primary/5 overflow-clip "
                                   style={{
                                     top: `${topOffset}%`,
-                                    height: `${height}%`,
-                                    minHeight: "20px",
+                                    height: `${heightPercentage}%`,
+                                    minHeight: "0px",
+                                    zIndex: 10,
                                   }}
                                 >
-                                  <CardHeader className="p-2 h-full flex flex-col justify-center">
+                                  <CardHeader className="p-2 h-full flex flex-col justify-center items-center">
                                     <CardTitle className="text-xs font-medium text-card-foreground leading-tight">
                                       {activity.name}
                                     </CardTitle>
-                                    {activity.description && height > 40 && (
-                                      <CardDescription className="text-xs text-muted-foreground truncate">
-                                        {activity.description}
-                                      </CardDescription>
-                                    )}
+                                    <div className="text-xs text-muted-foreground mt-1">
+                                      {activity.time}
+                                    </div>
                                   </CardHeader>
                                 </Card>
                               </DialogTrigger>
+                        <DialogContent className="bg-popover border-border">
+                          <DialogHeader>
+                            <DialogTitle className="text-popover-foreground flex items-center gap-2">
+                              <BookOpen className="w-5 h-5 text-primary" />
+                              {activity.name}
+                            </DialogTitle>
+                            <DialogDescription className="text-muted-foreground">
+                              {activity.time} • {activity.description}
+                            </DialogDescription>
+                          </DialogHeader>
 
-                              <DialogContent className="bg-popover border-border">
-                                <DialogHeader>
-                                  <DialogTitle className="text-popover-foreground flex items-center gap-2">
-                                    <BookOpen className="w-5 h-5 text-primary" />
-                                    {activity.name}
-                                  </DialogTitle>
-                                  <DialogDescription className="text-muted-foreground">
-                                    {activity.time} • {activity.description}
-                                  </DialogDescription>
-                                </DialogHeader>
-
-                                <div className="space-y-6 mt-4">
-                                  {activity.upcomingTests &&
-                                    activity.upcomingTests.length > 0 && (
-                                      <div>
-                                        <h3 className="text-lg font-semibold text-popover-foreground mb-3 flex items-center gap-2">
-                                          <Calendar className="w-4 h-4 text-primary" />
-                                          Upcoming Tests
-                                        </h3>
-                                        <div className="space-y-2">
-                                          {activity.upcomingTests.map(
-                                            (test, index) => (
-                                              <div
-                                                key={index}
-                                                className="p-3 bg-card rounded-lg border border-border"
-                                              >
-                                                <p className="text-card-foreground">
-                                                  {test}
-                                                </p>
-                                              </div>
-                                            )
-                                          )}
+                          <div className="space-y-6 mt-4">
+                            {activity.upcomingTests &&
+                              activity.upcomingTests.length > 0 && (
+                                <div>
+                                  <h3 className="text-lg font-semibold text-popover-foreground mb-3 flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-primary" />
+                                    Upcoming Tests
+                                  </h3>
+                                  <div className="space-y-2">
+                                    {activity.upcomingTests.map(
+                                      (test, index) => (
+                                        <div
+                                          key={index}
+                                          className="p-3 bg-card rounded-lg border border-border"
+                                        >
+                                          <p className="text-card-foreground">
+                                            {test}
+                                          </p>
                                         </div>
-                                      </div>
+                                      )
                                     )}
-
-                                  {activity.importantDates &&
-                                    activity.importantDates.length > 0 && (
-                                      <div>
-                                        <h3 className="text-lg font-semibold text-popover-foreground mb-3 flex items-center gap-2">
-                                          <Calendar className="w-4 h-4 text-accent" />
-                                          Important Dates
-                                        </h3>
-                                        <div className="space-y-2">
-                                          {activity.importantDates.map(
-                                            (date, index) => (
-                                              <div
-                                                key={index}
-                                                className="p-3 bg-muted rounded-lg border border-border"
-                                              >
-                                                <p className="text-muted-foreground">
-                                                  {date}
-                                                </p>
-                                              </div>
-                                            )
-                                          )}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                  {(!activity.upcomingTests ||
-                                    activity.upcomingTests.length === 0) &&
-                                    (!activity.importantDates ||
-                                      activity.importantDates.length === 0) && (
-                                      <div className="text-center py-8">
-                                        <p className="text-muted-foreground">
-                                          No upcoming tests or important dates
-                                          scheduled
-                                        </p>
-                                      </div>
-                                    )}
+                                  </div>
                                 </div>
-                              </DialogContent>
+                              )}
+
+                            {activity.importantDates &&
+                              activity.importantDates.length > 0 && (
+                                <div>
+                                  <h3 className="text-lg font-semibold text-popover-foreground mb-3 flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-accent" />
+                                    Important Dates
+                                  </h3>
+                                  <div className="space-y-2">
+                                    {activity.importantDates.map(
+                                      (date, index) => (
+                                        <div
+                                          key={index}
+                                          className="p-3 bg-muted rounded-lg border border-border"
+                                        >
+                                          <p className="text-muted-foreground">
+                                            {date}
+                                          </p>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                            {(!activity.upcomingTests ||
+                              activity.upcomingTests.length === 0) &&
+                              (!activity.importantDates ||
+                                activity.importantDates.length === 0) && (
+                                <div className="text-center py-8">
+                                  <p className="text-muted-foreground">
+                                    No upcoming tests or important dates
+                                    scheduled
+                                  </p>
+                                </div>
+                              )}
+                          </div>
+                        </DialogContent>
                             </Dialog>
                           );
                         })}
@@ -955,7 +933,6 @@ export default function ScheduleViewer() {
                             </CardHeader>
                           </Card>
                         </DialogTrigger>
-
                         <DialogContent className="bg-popover border-border">
                           <DialogHeader>
                             <DialogTitle className="text-popover-foreground flex items-center gap-2">
