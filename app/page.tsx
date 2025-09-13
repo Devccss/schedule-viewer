@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import React from "react";
 import { useAuth } from "@/components/auth-provider";
 import { useState, useEffect } from "react";
 import {
@@ -44,6 +44,8 @@ import {
   Copy,
   LogOut,
 } from "lucide-react";
+import ActivityManagementDialog from "@/components/ActivityManagementDialog";
+import ScheduleManagementDialog from "@/components/ScheduleManagementDialog";
 
 interface Activity {
   id: string;
@@ -613,139 +615,37 @@ export default function ScheduleViewer() {
           </div>
         </header>
 
-        {showScheduleManagement && (
-          <div className="mb-8 p-6 bg-card rounded-lg border border-border">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <FolderPlus className="w-5 h-5" />
-              Schedule Management
-            </h2>
+        <ScheduleManagementDialog
+          open={showScheduleManagement}
+          onOpenChange={setShowScheduleManagement}
+          schedules={schedules}
+          setSchedules={setSchedules}
+          currentScheduleId={currentScheduleId}
+          setCurrentScheduleId={setCurrentScheduleId}
+          newSchedule={newSchedule}
+          setNewSchedule={setNewSchedule}
+          exportData={exportData}
+          importData={importData}
+          clearAllData={clearAllData}
+          duplicateSchedule={duplicateSchedule}
+          deleteSchedule={deleteSchedule}
+        />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Create New Schedule</h3>
-
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="schedule-name">Schedule Name</Label>
-                    <Input
-                      id="schedule-name"
-                      value={newSchedule.name || ""}
-                      onChange={(e) =>
-                        setNewSchedule((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., Fall 2024 Semester"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="schedule-description">Description</Label>
-                    <Textarea
-                      id="schedule-description"
-                      value={newSchedule.description || ""}
-                      onChange={(e) =>
-                        setNewSchedule((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                      placeholder="Brief description of this schedule"
-                    />
-                  </div>
-
-                  <Button
-                    onClick={createNewSchedule}
-                    className="flex items-center gap-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Create Schedule
-                  </Button>
-                </div>
-
-                <div className="pt-4 border-t border-border">
-                  <h3 className="text-lg font-medium mb-3">Data Management</h3>
-                  <div className="space-y-2">
-                    <Button
-                      variant="outline"
-                      onClick={exportData}
-                      className="w-full justify-start bg-transparent"
-                    >
-                      Export All Data
-                    </Button>
-
-                    <div>
-                      <input
-                        type="file"
-                        accept=".json"
-                        onChange={importData}
-                        className="hidden"
-                        id="import-file"
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          document.getElementById("import-file")?.click()
-                        }
-                        className="w-full justify-start"
-                      >
-                        Import Data
-                      </Button>
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      onClick={clearAllData}
-                      className="w-full justify-start text-destructive hover:text-destructive bg-transparent"
-                    >
-                      Clear All Data
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Existing Schedules</h3>
-                <div className="max-h-96 overflow-y-auto space-y-2">
-                  {schedules.map((schedule) => (
-                    <div
-                      key={schedule.id}
-                      className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium">{schedule.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {schedule.description}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => duplicateSchedule(schedule.id)}
-                          title="Duplicate schedule"
-                        >
-                          <Copy className="w-3 h-3" />
-                        </Button>
-                        {schedules.length > 1 && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteSchedule(schedule.id)}
-                            title="Delete schedule"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        <ActivityManagementDialog
+          open={showManagement}
+          onOpenChange={setShowManagement}
+          editingActivity={editingActivity}
+          setEditingActivity={setEditingActivity}
+          newActivity={newActivity}
+          setNewActivity={setNewActivity}
+          selectedDay={selectedDay}
+          setSelectedDay={setSelectedDay}
+          scheduleData={scheduleData}
+          addActivity={addActivity}
+          updateActivity={updateActivity}
+          editActivity={editActivity}
+          deleteActivity={deleteActivity}
+        />
 
         {viewMode === "schedule" ? (
           <div className="overflow-x-auto">
@@ -761,7 +661,7 @@ export default function ScheduleViewer() {
               ))}
 
               {timeSlots.map((timeSlot) => (
-                <>
+                <React.Fragment key={timeSlot.hour}>
                   <div
                     key={`time-${timeSlot.hour}`}
                     className="text-sm text-muted-foreground p-2 border-r border-border flex items-center"
@@ -897,7 +797,7 @@ export default function ScheduleViewer() {
                       </div>
                     );
                   })}
-                </>
+                </React.Fragment>
               ))}
             </div>
           </div>
@@ -1132,149 +1032,7 @@ export default function ScheduleViewer() {
           </div>
         )}
 
-        {showManagement && (
-          <div className="mb-8 p-6 bg-card rounded-lg border border-border">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              Activity Management
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">
-                  {editingActivity ? "Edit Activity" : "Add New Activity"}
-                </h3>
-
-                <div className="space-y-3">
-                  <div>
-                    <Label htmlFor="day">Day</Label>
-                    <Select value={selectedDay} onValueChange={setSelectedDay}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a day" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {scheduleData.map((day) => (
-                          <SelectItem key={day.day} value={day.day}>
-                            {day.day}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="name">Activity Name</Label>
-                    <Input
-                      id="name"
-                      value={newActivity.name || ""}
-                      onChange={(e) =>
-                        setNewActivity((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., Mobile Development"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="time">Time</Label>
-                    <Input
-                      id="time"
-                      value={newActivity.time || ""}
-                      onChange={(e) =>
-                        setNewActivity((prev) => ({
-                          ...prev,
-                          time: e.target.value,
-                        }))
-                      }
-                      placeholder="e.g., 8:00 AM - 10:30 AM"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={newActivity.description || ""}
-                      onChange={(e) =>
-                        setNewActivity((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                      placeholder="Brief description of the activity"
-                    />
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={editingActivity ? updateActivity : addActivity}
-                      className="flex items-center gap-2"
-                    >
-                      {editingActivity ? (
-                        <Edit className="w-4 h-4" />
-                      ) : (
-                        <Plus className="w-4 h-4" />
-                      )}
-                      {editingActivity ? "Update Activity" : "Add Activity"}
-                    </Button>
-
-                    {editingActivity && (
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          setEditingActivity(null);
-                          setNewActivity({});
-                          setSelectedDay("");
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Current Activities</h3>
-                <div className="max-h-96 overflow-y-auto space-y-2">
-                  {scheduleData.flatMap((day) =>
-                    day.activities.map((activity) => (
-                      <div
-                        key={activity.id}
-                        className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                      >
-                        <div>
-                          <p className="font-medium">{activity.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {day.day} • {activity.time}
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => editActivity(activity)}
-                          >
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => deleteActivity(activity.id)}
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        
 
         <footer className="mt-12 text-center">
           <p className="text-muted-foreground text-sm">

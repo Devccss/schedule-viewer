@@ -7,12 +7,12 @@ const users = [
     password: process.env.USER1_PASSWORD || "agawgawgaw",
   },
   {
-    username: process.env.USER2_USERNAME || "user",
-    password: process.env.USER2_PASSWORD || "userpassawfawfawfawfawf",
+    username: process.env.USER2_USERNAME || "user2",
+    password: process.env.USER2_PASSWORD || "passworduser2",
   },
   {
-    username: process.env.USER3_USERNAME || "student",
-    password: process.env.USER3_PASSWORD || "student123awgawgawgawgawew1r",
+    username: process.env.USER3_USERNAME || "user3",
+    password: process.env.USER3_PASSWORD || "passworduser3",
   },
 ].filter((user) => user.username && user.password) // Only include users with both username and password
 
@@ -26,14 +26,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Username and password are required" }, { status: 400 })
     }
 
-    // Find user in environment variables
     const user = users.find((u) => u.username === username && u.password === password)
 
     if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
     }
 
-    // Create JWT token
     const token = await new SignJWT({ username })
       .setProtectedHeader({ alg: "HS256" })
       .setIssuedAt()
