@@ -66,7 +66,7 @@ const ActivityManagementDialog: React.FC<ActivityManagementDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full md:max-w-6xl max-w-[95vw] sm:max-w-lg p-2 sm:p-6 max-h-screen overflow-y-auto">
+      <DialogContent className="w-full md:max-w-6xl max-w-[95vw] md:h-fit h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl sm:text-2xl">Activity Management</DialogTitle>
           <DialogDescription className="text-sm sm:text-base">

@@ -59,7 +59,7 @@ const ScheduleManagementDialog: React.FC<ScheduleManagementDialogProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-full max-h-screen overflow-y-auto">
+      <DialogContent className="max-w-full max-h-screen md:h-fit h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Schedule Management</DialogTitle>
           <DialogDescription>
