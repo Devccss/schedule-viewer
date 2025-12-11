@@ -798,125 +798,123 @@ export default function ScheduleViewer() {
             </div>
           </div>
         ) : viewMode === "weekly" ? (
-            <div className="overflow-x-auto p-2">
-            <div className="min-w-[1024px] grid grid-cols-7 gap-6">
-              {scheduleData.map((daySchedule) => (
-              <div key={daySchedule.day} className="w-full space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {scheduleData.map((daySchedule) => (
+              <div key={daySchedule.day} className="space-y-3">
                 <h2 className="text-xl font-semibold text-primary border-b border-border pb-2">
-                {daySchedule.day}
+                  {daySchedule.day}
                 </h2>
 
                 {daySchedule.activities.length > 0 ? (
-                <div className="space-y-3">
-                  {daySchedule.activities.map((activity) => (
-                  <Dialog key={activity.id}>
-                    <DialogTrigger asChild>
-                    <Card className="w-full cursor-pointer hover:bg-accent/10 transition-colors duration-200 border-border">
-                      <CardHeader className="p-4">
-                      <CardTitle className="text-sm font-medium text-card-foreground leading-tight">
-                        {activity.name}
-                      </CardTitle>
-                      <div className="flex items-center gap-1 mt-2">
-                        <Clock className="w-3 h-3 text-primary" />
-                        <span className="text-xs text-muted-foreground">
-                        {activity.time}
-                        </span>
-                      </div>
-                      {activity.description && (
-                        <CardDescription className="text-xs text-muted-foreground mt-1">
-                        {activity.description}
-                        </CardDescription>
-                      )}
-                      </CardHeader>
-                    </Card>
-                    </DialogTrigger>
-                    <DialogContent className="bg-popover border-border">
-                    <DialogHeader>
-                      <DialogTitle className="text-popover-foreground flex items-center gap-2">
-                      <BookOpen className="w-5 h-5 text-primary" />
-                      {activity.name}
-                      </DialogTitle>
-                      <DialogDescription className="text-muted-foreground">
-                      {activity.time} • {activity.description}
-                      </DialogDescription>
-                    </DialogHeader>
+                  <div className="space-y-3">
+                    {daySchedule.activities.map((activity) => (
+                      <Dialog key={activity.id}>
+                        <DialogTrigger asChild>
+                          <Card className="cursor-pointer hover:bg-accent/10 transition-colors duration-200 border-border">
+                            <CardHeader className="p-4">
+                              <CardTitle className="text-sm font-medium text-card-foreground leading-tight">
+                                {activity.name}
+                              </CardTitle>
+                              <div className="flex items-center gap-1 mt-2">
+                                <Clock className="w-3 h-3 text-primary" />
+                                <span className="text-xs text-muted-foreground">
+                                  {activity.time}
+                                </span>
+                              </div>
+                              {activity.description && (
+                                <CardDescription className="text-xs text-muted-foreground mt-1">
+                                  {activity.description}
+                                </CardDescription>
+                              )}
+                            </CardHeader>
+                          </Card>
+                        </DialogTrigger>
+                        <DialogContent className="bg-popover border-border">
+                          <DialogHeader>
+                            <DialogTitle className="text-popover-foreground flex items-center gap-2">
+                              <BookOpen className="w-5 h-5 text-primary" />
+                              {activity.name}
+                            </DialogTitle>
+                            <DialogDescription className="text-muted-foreground">
+                              {activity.time} • {activity.description}
+                            </DialogDescription>
+                          </DialogHeader>
 
-                    <div className="space-y-6 mt-4">
-                      {activity.upcomingTests &&
-                      activity.upcomingTests.length > 0 && (
-                        <div>
-                        <h3 className="text-lg font-semibold text-popover-foreground mb-3 flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-primary" />
-                          Upcoming Tests
-                        </h3>
-                        <div className="space-y-2">
-                          {activity.upcomingTests.map(
-                          (test, index) => (
-                            <div
-                            key={index}
-                            className="p-3 bg-card rounded-lg border border-border"
-                            >
-                            <p className="text-card-foreground">
-                              {test}
-                            </p>
-                            </div>
-                          )
-                          )}
-                        </div>
-                        </div>
-                      )}
+                          <div className="space-y-6 mt-4">
+                            {activity.upcomingTests &&
+                              activity.upcomingTests.length > 0 && (
+                                <div>
+                                  <h3 className="text-lg font-semibold text-popover-foreground mb-3 flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-primary" />
+                                    Upcoming Tests
+                                  </h3>
+                                  <div className="space-y-2">
+                                    {activity.upcomingTests.map(
+                                      (test, index) => (
+                                        <div
+                                          key={index}
+                                          className="p-3 bg-card rounded-lg border border-border"
+                                        >
+                                          <p className="text-card-foreground">
+                                            {test}
+                                          </p>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              )}
 
-                      {activity.importantDates &&
-                      activity.importantDates.length > 0 && (
-                        <div>
-                        <h3 className="text-lg font-semibold text-popover-foreground mb-3 flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-accent" />
-                          Important Dates
-                        </h3>
-                        <div className="space-y-2">
-                          {activity.importantDates.map(
-                          (date, index) => (
-                            <div
-                            key={index}
-                            className="p-3 bg-muted rounded-lg border border-border"
-                            >
-                            <p className="text-muted-foreground">
-                              {date}
-                            </p>
-                            </div>
-                          )
-                          )}
-                        </div>
-                        </div>
-                      )}
+                            {activity.importantDates &&
+                              activity.importantDates.length > 0 && (
+                                <div>
+                                  <h3 className="text-lg font-semibold text-popover-foreground mb-3 flex items-center gap-2">
+                                    <Calendar className="w-4 h-4 text-accent" />
+                                    Important Dates
+                                  </h3>
+                                  <div className="space-y-2">
+                                    {activity.importantDates.map(
+                                      (date, index) => (
+                                        <div
+                                          key={index}
+                                          className="p-3 bg-muted rounded-lg border border-border"
+                                        >
+                                          <p className="text-muted-foreground">
+                                            {date}
+                                          </p>
+                                        </div>
+                                      )
+                                    )}
+                                  </div>
+                                </div>
+                              )}
 
-                      {(!activity.upcomingTests ||
-                      activity.upcomingTests.length === 0) &&
-                      (!activity.importantDates ||
-                        activity.importantDates.length === 0) && (
-                        <div className="text-center py-8">
-                        <p className="text-muted-foreground">
-                          No upcoming tests or important dates
-                          scheduled
-                        </p>
-                        </div>
-                      )}
-                    </div>
-                    </DialogContent>
-                  </Dialog>
-                  ))}
-                </div>
+                            {(!activity.upcomingTests ||
+                              activity.upcomingTests.length === 0) &&
+                              (!activity.importantDates ||
+                                activity.importantDates.length === 0) && (
+                                <div className="text-center py-8">
+                                  <p className="text-muted-foreground">
+                                    No upcoming tests or important dates
+                                    scheduled
+                                  </p>
+                                </div>
+                              )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    ))}
+                  </div>
                 ) : (
-                <div className="h-24 flex items-center justify-center border-2 border-dashed border-border rounded-lg">
-                  <p className="text-muted-foreground text-sm">
-                  No activities
-                  </p>
-                </div>
+                  <div className="h-24 flex items-center justify-center border-2 border-dashed border-border rounded-lg">
+                    <p className="text-muted-foreground text-sm">
+                      No activities
+                    </p>
+                  </div>
                 )}
               </div>
-              ))}
-            </div>
-            </div>
+            ))}
+          </div>
         ) : (
           <div className="space-y-8">
             {scheduleData.map((daySchedule) => (
