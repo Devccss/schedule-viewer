@@ -497,10 +497,11 @@ export default function ScheduleViewer() {
     return { startHour, endHour, startMinutes, endMinutes };
   };
 
-  const timeSlots = Array.from({ length: 11 }, (_, i) => {
-    const hour = i + 8;
-    const displayHour = hour > 12 ? hour - 12 : hour;
-    const period = hour >= 12 ? "PM" : "AM";
+  const timeSlots = Array.from({ length: 17 }, (_, i) => {
+    const hour = i + 8; // 8..24
+    const normalizedHour = hour % 24;
+    const displayHour = normalizedHour === 0 ? 12 : normalizedHour > 12 ? normalizedHour - 12 : normalizedHour;
+    const period = normalizedHour >= 12 ? "PM" : "AM";
     return {
       hour,
       display: `${displayHour}:00 ${period}`,
