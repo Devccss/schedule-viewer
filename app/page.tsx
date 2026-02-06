@@ -323,6 +323,24 @@ export default function ScheduleViewer() {
     }
   };
 
+  const duplicateActivity = (activity: Activity, targetDays: string[]) => {
+    const newData = scheduleData.map((day) => {
+      if (targetDays.includes(day.day)) {
+        // Create a new unique activity for each day
+        const duplicatedActivity: Activity = {
+          ...activity,
+          id: `${day.day.toLowerCase()}-${Date.now()}-${Math.random()}`,
+        };
+        return {
+          ...day,
+          activities: [...day.activities, duplicatedActivity],
+        };
+      }
+      return day;
+    });
+    updateScheduleData(newData);
+  };
+
   const exportData = () => {
     const dataToExport: StorageData = {
       schedules,
@@ -420,21 +438,28 @@ export default function ScheduleViewer() {
   const editActivity = (activity: Activity) => {
     setEditingActivity(activity);
     setNewActivity(activity);
-    setSelectedDay(
-      scheduleData.find((day) =>
-        day.activities.some((a) => a.id === activity.id)
-      )?.day || ""
-    );
+    const dayName = scheduleData.find((day) =>
+      day.activities.some((a) => a.id === activity.id)
+    )?.day || "";
+    setSelectedDay(dayName);
+    setShowManagement(true);
   };
 
   const updateActivity = () => {
-    if (!editingActivity || !newActivity.name || !newActivity.time) return;
+    if (!editingActivity || !newActivity.name) return;
 
     const newData = scheduleData.map((day) => ({
       ...day,
       activities: day.activities.map((activity) =>
         activity.id === editingActivity.id
-          ? { ...activity, ...newActivity }
+          ? {
+              ...activity,
+              name: newActivity.name || activity.name,
+              description: newActivity.description !== undefined ? newActivity.description : activity.description,
+              time: newActivity.time || activity.time,
+              upcomingTests: newActivity.upcomingTests !== undefined ? newActivity.upcomingTests : activity.upcomingTests,
+              importantDates: newActivity.importantDates !== undefined ? newActivity.importantDates : activity.importantDates,
+            }
           : activity
       ),
     }));
@@ -465,46 +490,27 @@ export default function ScheduleViewer() {
   } => {
     const [startTime, endTime] = timeString.split(" - ");
 
-    // Parse start time
-    const [startTimePart, startPeriod] = startTime.trim().split(" ");
-    const [startHourStr, startMinStr = "0"] = startTimePart.split(":");
-    let startHour = Number.parseInt(startHourStr);
+    // Parse 24h format (HH:mm)
+    const [startHourStr, startMinStr = "0"] = startTime.trim().split(":");
+    const startHour = Number.parseInt(startHourStr);
     const startMinutes = Number.parseInt(startMinStr);
 
-    if (startPeriod === "PM" && startHour !== 12) {
-      startHour += 12;
-    } else if (startPeriod === "AM" && startHour === 12) {
-      startHour = 0;
-    }
-
-    // Parse end time
     let endHour = startHour + 1;
     let endMinutes = 0;
 
     if (endTime) {
-      const [endTimePart, endPeriod] = endTime.trim().split(" ");
-      const [endHourStr, endMinStr = "0"] = endTimePart.split(":");
+      const [endHourStr, endMinStr = "0"] = endTime.trim().split(":");
       endHour = Number.parseInt(endHourStr);
       endMinutes = Number.parseInt(endMinStr);
-
-      if (endPeriod === "PM" && endHour !== 12) {
-        endHour += 12;
-      } else if (endPeriod === "AM" && endHour === 12) {
-        endHour = 0;
-      }
     }
 
     return { startHour, endHour, startMinutes, endMinutes };
   };
 
-  const timeSlots = Array.from({ length: 17 }, (_, i) => {
-    const hour = i + 8; // 8..24
-    const normalizedHour = hour % 24;
-    const displayHour = normalizedHour === 0 ? 12 : normalizedHour > 12 ? normalizedHour - 12 : normalizedHour;
-    const period = normalizedHour >= 12 ? "PM" : "AM";
+  const timeSlots = Array.from({ length: 24 }, (_, i) => {
     return {
-      hour,
-      display: `${displayHour}:00 ${period}`,
+      hour: i,
+      display: `${String(i).padStart(2, "0")}:00`,
     };
   });
 
@@ -642,6 +648,7 @@ export default function ScheduleViewer() {
           updateActivity={updateActivity}
           editActivity={editActivity}
           deleteActivity={deleteActivity}
+          duplicateActivity={duplicateActivity}
         />
 
         {viewMode === "schedule" ? (
